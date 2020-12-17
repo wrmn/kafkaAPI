@@ -163,6 +163,6 @@ func topicWriter(procCode string) string {
 	case "27":
 		return "consumer2"
 	default:
-		return "biller1&2"
+		return "biller12"
 	}
 }
