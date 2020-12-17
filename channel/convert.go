@@ -3,37 +3,74 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"strconv"
 
+	"github.com/go-yaml/yaml"
 	"github.com/mofax/iso8583"
 )
+
+func (s *Spec) readFromFile(filename string) error {
+	content, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	yaml.Unmarshal(content, &s.fields)
+	return nil
+}
+
+func convCardAcc(cardAcceptorData CardAcceptorData) string {
+	var cardAcceptor string
+	if cardAcceptorData.CardAcceptorCity != "" ||
+		cardAcceptorData.CardAcceptorCountryCode != "" ||
+		cardAcceptorData.CardAcceptorName != "" {
+		for len(cardAcceptorData.CardAcceptorCity) < 13 {
+			cardAcceptorData.CardAcceptorCity += " "
+		}
+		for len(cardAcceptorData.CardAcceptorName) < 25 {
+			cardAcceptorData.CardAcceptorName += " "
+		}
+
+		cardAcceptor = cardAcceptorData.CardAcceptorName +
+			cardAcceptorData.CardAcceptorCity +
+			cardAcceptorData.CardAcceptorCountryCode
+	}
+	return cardAcceptor
+}
+
+func resultLog(result string) {
+	lnth := result[:4]
+	mti := result[4:8]
+	res := result[8:24]
+	ele := result[24:]
+	bitmap, _ := iso8583.HexToBitmapArray(res)
+	logWriter("Full message	: " + result)
+	logWriter("Length		: " + lnth)
+	logWriter("Msg Only		: " + result[4:])
+	logWriter("MTI			: " + mti)
+	logWriter("Hexmap		: " + res)
+	logWriter("Bitmap		: " + fmt.Sprintf("%d", bitmap))
+	logWriter("Element		: " + ele)
+
+}
 
 func toJSON(data Transaction) (string, error) {
 	logWriter("New request Json to iso:8583")
 	logWriter("original : " + fmt.Sprint(data))
-	iso := iso8583.NewISOStruct("spec1987.yml", false)
-	var cardAcceptor string
-	if data.CardAcceptorData.CardAcceptorCity != "" ||
-		data.CardAcceptorData.CardAcceptorCountryCode != "" ||
-		data.CardAcceptorData.CardAcceptorName != "" {
-		for len(data.CardAcceptorData.CardAcceptorCity) < 13 {
-			data.CardAcceptorData.CardAcceptorCity += " "
-		}
-		for len(data.CardAcceptorData.CardAcceptorName) < 25 {
-			data.CardAcceptorData.CardAcceptorName += " "
-		}
 
-		cardAcceptor = data.CardAcceptorData.CardAcceptorName +
-			data.CardAcceptorData.CardAcceptorCity +
-			data.CardAcceptorData.CardAcceptorCountryCode
-	}
+	iso := iso8583.NewISOStruct("spec1987.yml", false)
+
+	cardAcceptor := convCardAcc(data.CardAcceptorData)
 	amount := strconv.Itoa(data.TotalAmount)
 	something := Spec{}
+
 	e := something.readFromFile("spec1987.yml")
 	if e != nil {
 		fmt.Println(e.Error())
 	}
-	val := map[int]string{2: data.Pan,
+
+	val := map[int]string{
+		2:  data.Pan,
 		3:  data.ProcessingCode,
 		4:  amount,
 		5:  data.SettlementAmount,
@@ -56,6 +93,7 @@ func toJSON(data Transaction) (string, error) {
 		51: data.CardHolderBillingCurrencyCode,
 		57: data.AdditionalDataNational,
 	}
+
 	iso.AddMTI("0200")
 
 	for id := range something.fields {
@@ -96,18 +134,9 @@ func toJSON(data Transaction) (string, error) {
 	for len(lnth) < 4 {
 		lnth = "0" + lnth
 	}
+	finResult := lnth + result
 
-	mti := result[:4]
-	res := result[4:20]
-	ele := result[20:]
-	bitmap, _ := iso8583.HexToBitmapArray(res)
-	logWriter("Full message	: " + lnth + result)
-	logWriter("Length		: " + lnth)
-	logWriter("Msg Only		: " + result)
-	logWriter("MTI			: " + mti)
-	logWriter("Hexmap		: " + res)
-	logWriter("Bitmap		: " + fmt.Sprintf("%d", bitmap))
-	logWriter("Element		: " + ele)
-	return lnth + result, nil
+	resultLog(finResult)
 
+	return finResult, nil
 }

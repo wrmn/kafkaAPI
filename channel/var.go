@@ -1,5 +1,17 @@
 package main
 
+type Spec struct {
+	fields map[int]FieldDescription
+}
+
+type FieldDescription struct {
+	ContentType string `yaml:"ContentType"`
+	MaxLen      int    `yaml:"MaxLen"`
+	MinLen      int    `yaml:"MinLen"`
+	LenType     string `yaml:"LenType"`
+	Label       string `yaml:"Label"`
+}
+
 type Transaction struct {
 	Pan                           string           `json:"pan"`
 	ProcessingCode                string           `json:"processingCode"`
