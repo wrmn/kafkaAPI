@@ -24,9 +24,9 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := toJSON(transaction)
+	result, err := fromJSON(transaction)
 	if err != nil {
-		incJSON(err, w, transaction)
+		incISO(err, w, result)
 		return
 	}
 
@@ -34,11 +34,4 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 	w.Write(isoRes)
 
-}
-
-func incJSON(err error, w http.ResponseWriter, transaction Transaction) {
-	logWriter(fmt.Sprintf("fail to process \n request for %s\n with error %s", transaction, err.Error()))
-	w.WriteHeader(405)
-	w.Write([]byte("fail to process"))
-	return
 }

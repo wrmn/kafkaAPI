@@ -54,20 +54,61 @@ func resultLog(result string) {
 
 }
 
-func toJSON(data Transaction) (string, error) {
-	logWriter("New request Json to iso:8583")
-	logWriter("original : " + fmt.Sprint(data))
-
+func toISO(val map[int]string) (string, error) {
 	iso := iso8583.NewISOStruct("spec1987.yml", false)
+	iso.AddMTI("0200")
 
-	cardAcceptor := convCardAcc(data.CardAcceptorData)
-	amount := strconv.Itoa(data.TotalAmount)
 	something := Spec{}
 
 	e := something.readFromFile("spec1987.yml")
 	if e != nil {
 		fmt.Println(e.Error())
 	}
+
+	for id := range something.fields {
+		ele := something.fields[id]
+		if ele.LenType == "fixed" && val[id] != "" {
+			if id == 4 {
+				for len(val[id]) < ele.MaxLen {
+					val[id] = "0" + val[id]
+				}
+			} else {
+				for len(val[id]) < ele.MaxLen {
+					val[id] = val[id] + " "
+				}
+			}
+			if len(val[id]) > ele.MaxLen {
+				val[id] = val[id][:ele.MaxLen]
+			}
+			logWriter(fmt.Sprintf("[%d] length %d = %s", id, ele.MaxLen, val[id]))
+		} else if val[id] != "" {
+			logWriter(fmt.Sprintf("[%d] length %d = %s", id, len(val[id]), val[id]))
+		}
+
+		if ele.ContentType == "m" && val[id] == "" {
+			missing := fmt.Sprintf("mandatory field required \n%s is empty", ele.Label)
+			logWriter("request aborted")
+			return "", errors.New(missing)
+		}
+
+		if val[id] != "" {
+			iso.AddField(int64(id), val[id])
+		}
+
+	}
+
+	result, _ := iso.ToString()
+
+	return result, nil
+
+}
+
+func fromJSON(data Transaction) (string, error) {
+	logWriter("New request Json to iso:8583")
+	logWriter("original : " + fmt.Sprint(data))
+
+	cardAcceptor := convCardAcc(data.CardAcceptorData)
+	amount := strconv.Itoa(data.TotalAmount)
 
 	val := map[int]string{
 		2:  data.Pan,
@@ -94,47 +135,17 @@ func toJSON(data Transaction) (string, error) {
 		57: data.AdditionalDataNational,
 	}
 
-	iso.AddMTI("0200")
+	result, err := toISO(val)
 
-	for id := range something.fields {
-		ele := something.fields[id]
-		if ele.LenType == "fixed" && val[id] != "" {
-			if id == 4 {
-				for len(val[id]) < ele.MaxLen {
-					val[id] = "0" + val[id]
-				}
-			} else {
-				for len(val[id]) < ele.MaxLen {
-					val[id] = val[id] + " "
-				}
-			}
-			if len(val[id]) > ele.MaxLen {
-				val[id] = val[id][:ele.MaxLen]
-			}
-			logWriter(fmt.Sprintf("[%d] length %d = %s", id, ele.MaxLen, val[id]))
-		} else if val[id] != "" {
-			logWriter(fmt.Sprintf("[%d] length %d = %s", id, len(val[id]), val[id]))
-		}
-
-		if ele.ContentType == "m" && val[id] == "" {
-			missing := fmt.Sprintf("mandatory field required \n%s is empty", ele.Label)
-			logWriter(missing)
-			logWriter("request aborted")
-			return "", errors.New(missing)
-		}
-
-		if val[id] != "" {
-			iso.AddField(int64(id), val[id])
-		}
-
-	}
-
-	result, _ := iso.ToString()
 	lnth := strconv.Itoa(len(result))
 	for len(lnth) < 4 {
 		lnth = "0" + lnth
 	}
 	finResult := lnth + result
+
+	if err != nil {
+		return finResult, err
+	}
 
 	resultLog(finResult)
 

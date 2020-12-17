@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
 	"os"
 	"time"
 )
@@ -16,4 +18,18 @@ func logWriter(msg string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func incJSON(err error, w http.ResponseWriter, transaction Transaction) {
+	logWriter(fmt.Sprintf("fail to process \n request for %s\n with error %s", transaction, err.Error()))
+	w.WriteHeader(405)
+	w.Write([]byte("fail to process with message : " + err.Error()))
+	return
+}
+
+func incISO(err error, w http.ResponseWriter, iso string) {
+	logWriter(fmt.Sprintf("fail to process \n request for %s\n with error %s", iso, err.Error()))
+	w.WriteHeader(405)
+	w.Write([]byte("fail to process with message : " + err.Error()))
+	return
 }
