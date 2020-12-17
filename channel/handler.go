@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
 func postBiller(w http.ResponseWriter, r *http.Request) {
@@ -32,6 +34,40 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 
 	isoRes := []byte(result)
 	w.WriteHeader(200)
+	prodKafka(isoRes)
 	w.Write(isoRes)
+}
 
+func prodKafka(iso []byte) {
+	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "localhost:9092"})
+	if err != nil {
+		panic(err)
+	}
+
+	defer p.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	go func() {
+		for e := range p.Events() {
+			switch ev := e.(type) {
+			case *kafka.Message:
+				if ev.TopicPartition.Error != nil {
+					fmt.Printf("Delivery failed: %v\n", ev.TopicPartition)
+				} else {
+					fmt.Printf("Delivered message to %v\n", ev.TopicPartition)
+				}
+			}
+		}
+	}()
+
+	topic := "quickstart-events"
+	p.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          []byte(iso),
+	}, nil)
+
+	p.Flush(15 * 1000)
 }

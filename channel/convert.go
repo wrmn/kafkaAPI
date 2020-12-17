@@ -55,12 +55,12 @@ func resultLog(result string) {
 }
 
 func toISO(val map[int]string) (string, error) {
-	iso := iso8583.NewISOStruct("spec1987.yml", false)
+	iso := iso8583.NewISOStruct("../spec1987.yml", false)
 	iso.AddMTI("0200")
 
 	something := Spec{}
 
-	e := something.readFromFile("spec1987.yml")
+	e := something.readFromFile("../spec1987.yml")
 	if e != nil {
 		fmt.Println(e.Error())
 	}
