@@ -20,14 +20,15 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(b, &transaction)
 	if err != nil {
-		w = incJSON(err, w, transaction)
+		incJSON(err, w, transaction)
+		return
 	}
 
 }
 
-func incJSON(err error, w http.ResponseWriter, transaction Transaction) http.ResponseWriter {
+func incJSON(err error, w http.ResponseWriter, transaction Transaction) {
 	logWriter(fmt.Sprintf("incorrect format \n request for %s\n with error %s", transaction, err.Error()))
 	w.WriteHeader(405)
 	w.Write([]byte("incorrect format"))
-	return w
+	return
 }
