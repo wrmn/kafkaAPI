@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"strconv"
@@ -18,7 +18,7 @@ func (s *Spec) readFromFile(filename string) error {
 	yaml.Unmarshal(content, &s.fields)
 	return nil
 }
-func toJson(iso string) {
+func toXML(iso string) {
 	something := Spec{}
 	nice := iso8583.NewISOStruct("../spec1987.yml", false)
 	e := something.readFromFile("../spec1987.yml")
@@ -118,10 +118,9 @@ func toJson(iso string) {
 	payment.ResponseStatus.ResponseCode = 200
 	payment.ResponseStatus.ResponseDescription = "success"
 	//fmt.Print(payment)
-	//json.NewEncoder(w).Encode(payment)
-	resJson, err := json.MarshalIndent(payment, "", "   ")
+	resXML, err := xml.MarshalIndent(payment, "", "   ")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(resJson))
+	fmt.Println(string(resXML))
 }

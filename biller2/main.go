@@ -10,7 +10,7 @@ func main() {
 
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": "localhost:9092",
-		"group.id":          "biller1",
+		"group.id":          "biller2",
 		"auto.offset.reset": "earliest",
 	})
 
@@ -18,13 +18,13 @@ func main() {
 		panic(err)
 	}
 
-	c.SubscribeTopics([]string{"consumer1", "^aRegex.*[Tt]opic"}, nil)
+	c.SubscribeTopics([]string{"consumer2", "^aRegex.*[Tt]opic"}, nil)
 
 	for {
 		msg, err := c.ReadMessage(-1)
 		if err == nil {
 			fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-			toJson(string(msg.Value))
+			toXML(string(msg.Value))
 		} else {
 			fmt.Printf("Consumer error: %v (%v)\n", err, msg)
 		}

@@ -26,7 +26,7 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := fromJSON(transaction)
+	result, topic, err := fromJSON(transaction)
 	if err != nil {
 		incISO(err, w, result)
 		return
@@ -34,11 +34,11 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 
 	isoRes := []byte(result)
 	w.WriteHeader(200)
-	prodKafka(isoRes)
+	prodKafka(isoRes, topic)
 	w.Write(isoRes)
 }
 
-func prodKafka(iso []byte) {
+func prodKafka(iso []byte, topic string) {
 	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "localhost:9092"})
 	if err != nil {
 		panic(err)
@@ -63,7 +63,6 @@ func prodKafka(iso []byte) {
 		}
 	}()
 
-	topic := "quickstart-events"
 	p.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
 		Value:          []byte(iso),

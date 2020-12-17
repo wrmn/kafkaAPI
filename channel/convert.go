@@ -103,7 +103,7 @@ func toISO(val map[int]string) (string, error) {
 
 }
 
-func fromJSON(data Transaction) (string, error) {
+func fromJSON(data Transaction) (string, string, error) {
 	logWriter("New request Json to iso:8583")
 	logWriter("original : " + fmt.Sprint(data))
 
@@ -135,6 +135,8 @@ func fromJSON(data Transaction) (string, error) {
 		57: data.AdditionalDataNational,
 	}
 
+	topic := topicWriter(data.ProcessingCode)
+
 	result, err := toISO(val)
 
 	lnth := strconv.Itoa(len(result))
@@ -144,10 +146,23 @@ func fromJSON(data Transaction) (string, error) {
 	finResult := lnth + result
 
 	if err != nil {
-		return finResult, err
+		return finResult, topic, err
 	}
 
 	resultLog(finResult)
 
-	return finResult, nil
+	return finResult, topic, nil
+}
+
+func topicWriter(procCode string) string {
+	topic := procCode[:2]
+	fmt.Println(topic)
+	switch topic {
+	case "26":
+		return "consumer1"
+	case "27":
+		return "consumer2"
+	default:
+		return "biller1&2"
+	}
 }
