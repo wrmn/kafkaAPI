@@ -18,6 +18,7 @@ func (s *Spec) readFromFile(filename string) error {
 	yaml.Unmarshal(content, &s.fields)
 	return nil
 }
+
 func toXML(iso string) {
 	something := Spec{}
 	nice := iso8583.NewISOStruct("../spec1987.yml", false)
