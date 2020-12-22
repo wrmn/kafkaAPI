@@ -49,12 +49,12 @@ type CardAcceptorData struct {
 }
 
 type PaymentResponse struct {
-	TransactionData Transaction `json:"response"`
+	TransactionData Transaction `json:"transactionData"`
 	ResponseStatus  Response    `json:"responseStatus"`
 }
 
 type Response struct {
-	ResponseCode        int    `json:"responseCode"`
+	ResponseCode        int    `json:"responCode"`
 	ReasonCode          int    `json:"reasonCode"`
 	ResponseDescription string `json:"responseDescription"`
 }
