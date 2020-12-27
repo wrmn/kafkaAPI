@@ -18,7 +18,7 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Error while processing request : %s\n", err.Error())
 	}
 
-	var transaction Transaction
+	var transaction transaction
 
 	err = json.Unmarshal(b, &transaction)
 	if err != nil {

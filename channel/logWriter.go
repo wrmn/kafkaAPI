@@ -20,7 +20,7 @@ func logWriter(msg string) {
 	}
 }
 
-func incJSON(err error, w http.ResponseWriter, transaction Transaction) {
+func incJSON(err error, w http.ResponseWriter, transaction transaction) {
 	logWriter(fmt.Sprintf("fail to process \n request for %s\n with error %s", transaction, err.Error()))
 	w.WriteHeader(405)
 	w.Write([]byte("fail to process with message : " + err.Error()))

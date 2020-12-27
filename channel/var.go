@@ -1,10 +1,10 @@
 package main
 
-type Spec struct {
-	fields map[int]FieldDescription
+type spec struct {
+	fields map[int]fieldDescription
 }
 
-type FieldDescription struct {
+type fieldDescription struct {
 	ContentType string `yaml:"ContentType"`
 	MaxLen      int    `yaml:"MaxLen"`
 	MinLen      int    `yaml:"MinLen"`
@@ -12,12 +12,12 @@ type FieldDescription struct {
 	Label       string `yaml:"Label"`
 }
 
-type Transaction struct {
+type transaction struct {
 	Pan                           string           `json:"pan"`
 	ProcessingCode                string           `json:"processingCode"`
 	TotalAmount                   int              `json:"totalAmount"`
-	AcquirerId                    string           `json:"acquirerId"`
-	IssuerId                      string           `json:"issuerId"`
+	AcquirerID                    string           `json:"acquirerId"`
+	IssuerID                      string           `json:"issuerId"`
 	TransmissionDateTime          string           `json:"transmissionDateTime"`
 	LocalTransactionTime          string           `json:"localTransactionTime"`
 	LocalTransactionDate          string           `json:"localTransactionDate"`
@@ -26,7 +26,7 @@ type Transaction struct {
 	Stan                          string           `json:"stan"`
 	Refnum                        string           `json:"refnum"`
 	Currency                      string           `json:"currency"`
-	TerminalId                    string           `json:"terminalId"`
+	TerminalID                    string           `json:"terminalId"`
 	AccountFrom                   string           `json:"accountFrom"`
 	AccountTo                     string           `json:"accountTo"`
 	CategoryCode                  string           `json:"categoryCode"`
@@ -35,14 +35,14 @@ type Transaction struct {
 	SettlementConversionrate      string           `json:"settlementConversionrate"`
 	CardHolderBillingConvRate     string           `json:"cardHolderBillingConvRate"`
 	PointOfServiceEntryMode       string           `json:"pointOfServiceEntryMode"`
-	CardAcceptorData              CardAcceptorData `json:"cardAcceptorData"`
+	CardAcceptorData              cardAcceptorData `json:"cardAcceptorData"`
 	SettlementCurrencyCode        string           `json:"settlementCurrencyCode"`
 	CardHolderBillingCurrencyCode string           `json:"cardHolderBillingCurrencyCode"`
 	AdditionalDataNational        string           `json:"additionalDataNational"`
 }
 
-type CardAcceptorData struct {
-	CardAcceptorTerminalId  string `json:"cardAcceptorTerminalID"`
+type cardAcceptorData struct {
+	CardAcceptorTerminalID  string `json:"cardAcceptorTerminalID"`
 	CardAcceptorName        string `json:"cardAcceptorName"`
 	CardAcceptorCity        string `json:"cardAcceptorCity"`
 	CardAcceptorCountryCode string `json:"cardAcceptorCountryCode"`

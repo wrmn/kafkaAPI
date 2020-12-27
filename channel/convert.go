@@ -10,7 +10,7 @@ import (
 	"github.com/mofax/iso8583"
 )
 
-func (s *Spec) readFromFile(filename string) error {
+func (s *spec) readFromFile(filename string) error {
 	content, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
@@ -19,7 +19,7 @@ func (s *Spec) readFromFile(filename string) error {
 	return nil
 }
 
-func convCardAcc(cardAcceptorData CardAcceptorData) string {
+func convCardAcc(cardAcceptorData cardAcceptorData) string {
 	var cardAcceptor string
 	if cardAcceptorData.CardAcceptorCity != "" ||
 		cardAcceptorData.CardAcceptorCountryCode != "" ||
@@ -58,7 +58,7 @@ func toISO(val map[int]string) (string, error) {
 	iso := iso8583.NewISOStruct("../spec1987.yml", false)
 	iso.AddMTI("0200")
 
-	something := Spec{}
+	something := spec{}
 
 	e := something.readFromFile("../spec1987.yml")
 	if e != nil {
@@ -103,7 +103,7 @@ func toISO(val map[int]string) (string, error) {
 
 }
 
-func fromJSON(data Transaction) (string, string, error) {
+func fromJSON(data transaction) (string, string, error) {
 	logWriter("New request Json to iso:8583")
 	logWriter("original : " + fmt.Sprint(data))
 
@@ -126,7 +126,7 @@ func fromJSON(data Transaction) (string, string, error) {
 		18: data.CategoryCode,
 		22: data.PointOfServiceEntryMode,
 		37: data.Refnum,
-		41: data.CardAcceptorData.CardAcceptorTerminalId,
+		41: data.CardAcceptorData.CardAcceptorTerminalID,
 		43: cardAcceptor,
 		48: data.AdditionalData,
 		49: data.Currency,

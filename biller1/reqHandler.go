@@ -18,7 +18,7 @@ func sendAPI(data string) string {
 	body := bytes.NewReader(reqBody)
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", "https://9d32f843-12f1-4402-8d2b-008743bb5e75.mock.pstmn.io/biller", body)
-	//req.Header.Set("x-mock-match-request-body", "true")
+	req.Header.Set("x-mock-match-request-body", "true")
 	res, err := client.Do(req)
 
 	if err != nil {
