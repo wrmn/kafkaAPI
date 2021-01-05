@@ -47,3 +47,14 @@ type cardAcceptorData struct {
 	CardAcceptorCity        string `json:"cardAcceptorCity"`
 	CardAcceptorCountryCode string `json:"cardAcceptorCountryCode"`
 }
+
+type paymentResponse struct {
+	TransactionData transaction `json:"transactionData"`
+	ResponseStatus  response    `json:"responseStatus"`
+}
+
+type response struct {
+	ResponseCode        int    `json:"responCode"`
+	ReasonCode          int    `json:"reasonCode"`
+	ResponseDescription string `json:"responseDescription"`
+}

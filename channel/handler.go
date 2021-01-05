@@ -10,6 +10,7 @@ import (
 )
 
 func postBiller(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	defer r.Body.Close()
 	logWriter("new Biller request")
 	b, err := ioutil.ReadAll(r.Body)
@@ -56,7 +57,8 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.Close()
-	w.Write(msg.Value)
+	strRes := fromISO(string(msg.Value))
+	w.Write([]byte(strRes))
 }
 
 func prodKafka(iso []byte, topic string) {
