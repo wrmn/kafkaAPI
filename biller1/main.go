@@ -15,7 +15,7 @@ func main() {
 	})
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
 	}
 
 	c.SubscribeTopics([]string{"consumer1", "biller12"}, nil)
@@ -36,13 +36,15 @@ func main() {
 func prodKafka(iso string) {
 	p, err := kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "localhost:9092"})
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		return
 	}
 
 	defer p.Close()
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		return
 	}
 
 	go func() {

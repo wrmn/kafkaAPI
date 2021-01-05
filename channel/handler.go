@@ -35,7 +35,28 @@ func postBiller(w http.ResponseWriter, r *http.Request) {
 	isoRes := []byte(result)
 	w.WriteHeader(200)
 	prodKafka(isoRes, topic)
-	w.Write(isoRes)
+
+	c, err := kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers": "localhost:9092",
+		"group.id":          "channel",
+		"auto.offset.reset": "earliest",
+	})
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	c.SubscribeTopics([]string{"response"}, nil)
+
+	msg, err := c.ReadMessage(-1)
+	if err == nil {
+		fmt.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+	} else {
+		fmt.Printf("Consumer error: %v (%v)\n", err, msg)
+	}
+
+	c.Close()
+	w.Write(msg.Value)
 }
 
 func prodKafka(iso []byte, topic string) {

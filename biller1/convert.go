@@ -121,7 +121,8 @@ func toJson(iso string) string {
 	//json.NewEncoder(w).Encode(payment)
 	resJson, err := json.MarshalIndent(payment, "", "   ")
 	if err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		return ""
 	}
 	return string(resJson)
 }

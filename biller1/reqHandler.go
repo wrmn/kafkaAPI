@@ -10,41 +10,49 @@ import (
 )
 
 func sendAPI(data string) string {
-	reqBody, err := json.Marshal(data)
+	reqBody, err := json.MarshalIndent(data, "", "   ")
 	if err != nil {
 		logWriter(err.Error())
-		panic(err)
+		fmt.Println(err.Error())
+		return ""
 	}
-	body := bytes.NewReader(reqBody)
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://9d32f843-12f1-4402-8d2b-008743bb5e75.mock.pstmn.io/biller", body)
-	req.Header.Set("x-mock-match-request-body", "true")
+	req, _ := http.NewRequest("GET", "https://tiruan.herokuapp.com/biller", bytes.NewBuffer(reqBody))
+	//req.Header.Set("x-mock-match-request-body", "true")
+	req.Header.Set("Content-Type", "application/json")
 	res, err := client.Do(req)
 
 	if err != nil {
 		logWriter(err.Error())
-		panic(err)
+		fmt.Println(err.Error())
+		return ""
 	}
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		logWriter(err.Error())
-		panic(err)
+
+		fmt.Println(err.Error())
+		return ""
 	}
-	fmt.Printf(string(resBody))
+	fmt.Print(string(resBody) + "wow")
 
 	var resp PaymentResponse
 
 	err = json.Unmarshal(resBody, &resp)
 
+	fmt.Printf("%v", resp)
+
 	if err != nil {
 		logWriter(err.Error())
-		panic(err)
+		fmt.Println(err.Error())
+		return ""
 	}
 	iso, err := fromJSON(resp)
 	if err != nil {
 		logWriter(err.Error())
-		panic(err)
+		fmt.Println(err.Error())
+		return ""
 	}
 	return iso
 }
