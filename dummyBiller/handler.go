@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
 func getBiller(w http.ResponseWriter, r *http.Request) {
@@ -16,9 +15,9 @@ func getBiller(w http.ResponseWriter, r *http.Request) {
 	}
 	var transactions transaction
 
-	s, _ := strconv.Unquote(string(b))
+	//s, _ := strconv.Unquote(string(b))
 
-	err = json.Unmarshal([]byte(s), &transactions)
+	err = json.Unmarshal([]byte(b), &transactions)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

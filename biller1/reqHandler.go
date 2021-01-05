@@ -9,16 +9,17 @@ import (
 	"encoding/json"
 )
 
-func sendAPI(data string) string {
-	reqBody, err := json.MarshalIndent(data, "", "   ")
+func sendAPI(data Transaction) string {
+	reqBody, err := json.Marshal(data)
 	if err != nil {
 		logWriter(err.Error())
 		fmt.Println(err.Error())
 		return ""
 	}
+	fmt.Println(string(reqBody))
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "http://127.0.0.1:5052/biller", bytes.NewBuffer(reqBody))
-	//req, _ := http.NewRequest("GET", "https://tiruan.herokuapp.com/biller", bytes.NewBuffer(reqBody))
+	//req, _ := http.NewRequest("GET", "http://127.0.0.1:5052/biller", bytes.NewBuffer(reqBody))
+	req, _ := http.NewRequest("GET", "https://tiruan.herokuapp.com/biller", bytes.NewBuffer(reqBody))
 	//req.Header.Set("x-mock-match-request-body", "true")
 	req.Header.Set("Content-Type", "application/json")
 	res, err := client.Do(req)

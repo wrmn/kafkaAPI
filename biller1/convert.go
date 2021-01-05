@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -20,17 +19,18 @@ func (s *Spec) readFromFile(filename string) error {
 	return nil
 }
 
-func toJson(iso string) string {
+func toJson(iso string) Transaction {
 	something := Spec{}
 	nice := iso8583.NewISOStruct("../spec1987.yml", false)
 	e := something.readFromFile("../spec1987.yml")
+	payment := Transaction{}
 
 	if e != nil {
 		fmt.Println(e.Error())
 	}
 	if len(iso) < 4 {
 		fmt.Println("message seems incorrect")
-		return ""
+		return payment
 	}
 	lnt, err := strconv.Atoi(iso[:4])
 
@@ -38,7 +38,7 @@ func toJson(iso string) string {
 		logWriter("New request ISO:8583 to JSON")
 		logWriter("Incorrect format")
 		logWriter(fmt.Sprintf("request for %s", iso))
-		return ""
+		return payment
 	}
 
 	mti := iso[4:8]
@@ -90,7 +90,6 @@ func toJson(iso string) string {
 	elm := nice.Elements.GetElements()
 
 	amountTotal, _ := strconv.Atoi(elm[4])
-	payment := Transaction{}
 	payment.Pan = elm[2]
 	payment.ProcessingCode = elm[3]
 	payment.TotalAmount = amountTotal
@@ -119,12 +118,12 @@ func toJson(iso string) string {
 	}
 	//fmt.Print(payment)
 	//json.NewEncoder(w).Encode(payment)
-	resJson, err := json.MarshalIndent(payment, "", "   ")
-	if err != nil {
-		fmt.Println(err.Error())
-		return ""
-	}
-	return string(resJson)
+	//resJson, err := json.MarshalIndent(payment, "", "   ")
+	//if err != nil {
+	//fmt.Println(err.Error())
+	//return ""
+	//}
+	return payment
 }
 
 func convCardAcc(cardAcceptorData CardAcceptorData) string {
